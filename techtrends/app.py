@@ -87,13 +87,17 @@ def healthz():
 
 @app.route('/metrics')
 def metrics():
-  response = app.response_class(
+    connection = get_db_connection()
+    post_count = connection.execute(
+        "select count(*) from posts").fetchone()[0]
+    connection.close()
+    response = app.response_class(
       response=json.dumps(
-          {"db_connection_count": connection_count, "post_count": 7}),
+          {"db_connection_count": connection_count, "post_count": post_count}),
       status=200,
       mimetype='application/json'
   )
-  return response
+    return response
 # start the application on port 3111
 if __name__ == "__main__":
   stdout_handler = logging.StreamHandler(sys.stdout)
